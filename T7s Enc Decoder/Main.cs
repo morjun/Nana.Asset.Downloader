@@ -48,6 +48,21 @@ namespace T7s_Enc_Decoder
         {
 
         }
+
+        private void button4_Click(object sender, EventArgs e) // 저장 경로
+        {
+
+        }
+
+        private void button2_Click(object sender, EventArgs e) //설명
+        {
+
+        }
+
+        private void button3_Click(object sender, EventArgs e) //복호화 시작
+        {
+
+        }
     }
 
 

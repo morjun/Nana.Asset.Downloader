@@ -5,7 +5,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
-using LZ4;
+using K4os.Compression.LZ4;
 using T7s_Enc_Decoder;
 
 namespace T7s_Enc_Decoder
@@ -51,7 +51,7 @@ namespace T7s_Enc_Decoder
             return null;
         }
 
-        public static byte[] Decrypt<T>(T data, bool lz4 = false, EncVersion encVersion = EncVersion.Ver1)
+        public static byte[] Decrypt<T>(T data, bool lz4 = false, EncVersion encVersion = EncVersion.Ver2)
         {
             if (data == null)
             {
@@ -108,7 +108,16 @@ namespace T7s_Enc_Decoder
                 }
                 ClearShuffledKey();
             }
-            return (!lz4) ? array4 : LZ4Codec.Decode(array4, 4, array4.Length - 4, BitConverter.ToInt32(array4, 0));
+            if (!lz4)
+            {
+                return array4;
+            }
+            else
+            {
+                var array5 = new byte[array4.Length];
+                LZ4Codec.Decode(array4, 4, array4.Length - 4, array5, 0, BitConverter.ToInt32(array4, 0));
+                return array5;
+            }
         }
 
         public static byte[] Encrypt<T>(T data, bool lz4 = false, bool index = false)
@@ -121,7 +130,8 @@ namespace T7s_Enc_Decoder
             var array = ConvertByte(data);
             if (lz4)
             {
-                var array2 = LZ4Codec.EncodeHC(array, 0, array.Length);
+                var array2 = new byte[array.Length];
+                LZ4Codec.Encode(array, 0, array.Length, array2, 0, array2.Length);
                 if (array2.Length > 0)
                 {
                     var value = array.Length;

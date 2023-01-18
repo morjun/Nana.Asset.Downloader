@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using System.Threading.Tasks;
-using LZ4;
+using K4os.Compression.LZ4;
 using System.Security.Cryptography;
 
 namespace T7s_Enc_Decoder
@@ -64,7 +64,9 @@ namespace T7s_Enc_Decoder
                     array4 = cryptoTransform.TransformFinalBlock(array3, 0, array3.Length);
                 }
             }
-            return (!lz4) ? array4 : LZ4Codec.Decode(array4, 4, array4.Length - 4, BitConverter.ToInt32(array4, 0));
+            var array5 = new byte[array4.Length];
+            LZ4Codec.Decode(array4, 4, array4.Length - 4, array5, 0, BitConverter.ToInt32(array4, 0));
+            return (!lz4) ? array4 : array5;
         }
 
         public static byte[] Encrypt<T>(T data, bool lz4 = false)
@@ -76,7 +78,8 @@ namespace T7s_Enc_Decoder
             byte[] array = ConvertByte(data);
             if (lz4)
             {
-                byte[] array2 = LZ4Codec.EncodeHC(array, 0, array.Length);
+                var array2 = new byte[array.Length];
+                LZ4Codec.Encode(array, 0, array.Length, array2, 0, array2.Length);
                 if (array2.Length > 0)
                 {
                     int value = array.Length;
