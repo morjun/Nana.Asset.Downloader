@@ -19,9 +19,14 @@ namespace T7s_Enc_Decoder
 #if CLI
             if (args.Length > 0)
             {
-                foreach (var filePath in args)
+                foreach (var pattern in args)
                 {
-                    DecryptFiles.DecryptFile(filePath);
+                    string[] files = System.IO.Directory.GetFiles(System.IO.Directory.GetCurrentDirectory(), pattern);
+
+                    foreach (var filePath in files)
+                    {
+                        DecryptFiles.DecryptFile(filePath);
+                    }
                 }
             }
             else

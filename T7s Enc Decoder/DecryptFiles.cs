@@ -123,11 +123,16 @@ namespace T7s_Enc_Decoder
     {
         public static string GetSavePath(string FilePath)
         {
-            if (!Directory.Exists(Path.GetDirectoryName(FilePath) + "\\Deconde Files"))
+            string currentPath = Path.GetDirectoryName(FilePath);
+            if (currentPath == "")
             {
-                Directory.CreateDirectory(Path.GetDirectoryName(FilePath) + "\\Deconde Files");
+                currentPath = ".";
             }
-            string SavePath = Path.GetDirectoryName(FilePath) + "\\Deconde Files\\" + Path.GetFileNameWithoutExtension(FilePath);
+            if (!Directory.Exists(currentPath + "/Deconde Files"))
+            {
+                Directory.CreateDirectory(currentPath + "/Deconde Files");
+            }
+            string SavePath = currentPath + "/Deconde Files/" + Path.GetFileNameWithoutExtension(FilePath);
             return SavePath;
         }
 
