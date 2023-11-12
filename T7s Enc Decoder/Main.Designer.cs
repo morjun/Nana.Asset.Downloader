@@ -1,4 +1,5 @@
-﻿namespace T7s_Enc_Decoder
+﻿#if !CLI
+namespace T7s_Enc_Decoder
 {
     partial class Main
     {
@@ -314,4 +315,4 @@
         private System.Windows.Forms.Button button4;
     }
 }
-
+#endif

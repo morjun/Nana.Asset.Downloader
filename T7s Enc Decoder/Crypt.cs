@@ -4,7 +4,9 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
+#if !CLI
 using System.Windows.Forms;
+#endif
 using K4os.Compression.LZ4;
 using T7s_Enc_Decoder;
 
@@ -139,10 +141,12 @@ namespace T7s_Enc_Decoder
                     Buffer.BlockCopy(BitConverter.GetBytes(value), 0, array, 0, 4);
                     Buffer.BlockCopy(array2, 0, array, 4, array2.Length);
                 }
+#if !CLI
                 else
                 {
                     MessageBox.Show(@"圧縮失敗！: " + data);
                 }
+#endif
             }
 
             using (var rhinelandManaged = new RijndaelManaged())

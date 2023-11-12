@@ -8,6 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
+#if !CLI
 namespace T7sAsset.Properties {
     
     
@@ -24,3 +25,4 @@ namespace T7sAsset.Properties {
         }
     }
 }
+#endif

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using System.Threading.Tasks;
+#if !CLI
 using System.Windows.Forms;
 using System.Security.Cryptography;
 
@@ -67,3 +68,5 @@ namespace T7s_Enc_Decoder
 
 
 }
+
+#endif

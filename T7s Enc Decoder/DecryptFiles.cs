@@ -49,7 +49,9 @@ namespace T7s_Enc_Decoder
                         streamWriter.Write(fileText);
                         streamWriter.Close();
                     }
+#if !CLI
                     System.Windows.Forms.MessageBox.Show(@"无法识别");
+#endif
                     break;
 
                 default:
@@ -108,7 +110,9 @@ namespace T7s_Enc_Decoder
                     }
                     break;
                 case ENC_TYPE.ERROR:
+#if !CLI
                     System.Windows.Forms.MessageBox.Show(@"无法识别");
+#endif
                     break;
 
             }

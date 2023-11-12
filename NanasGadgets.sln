@@ -1,9 +1,8 @@
-﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.421
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34031.279
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "T7s Enc Decoder", "T7s Enc Decoder\T7s Enc Decoder.csproj", "{1F6F1F60-A1AD-4294-B762-E2B783419368}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "T7s Enc Decoder", "T7s Enc Decoder\T7s Enc Decoder.csproj", "{1F6F1F60-A1AD-4294-B762-E2B783419368}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "T7s Sig Counter", "T7s Sig Counter\T7s Sig Counter.csproj", "{00766EFC-A78D-4D75-84D0-0FFF7BD03DA9}"
 EndProject
@@ -11,18 +10,25 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "T7s Asset Downloader", "T7s
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		CLI_DEBUG|Any CPU = CLI_DEBUG|Any CPU
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1F6F1F60-A1AD-4294-B762-E2B783419368}.CLI_DEBUG|Any CPU.ActiveCfg = CLI_DEBUG|Any CPU
+		{1F6F1F60-A1AD-4294-B762-E2B783419368}.CLI_DEBUG|Any CPU.Build.0 = CLI_DEBUG|Any CPU
 		{1F6F1F60-A1AD-4294-B762-E2B783419368}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{1F6F1F60-A1AD-4294-B762-E2B783419368}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1F6F1F60-A1AD-4294-B762-E2B783419368}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1F6F1F60-A1AD-4294-B762-E2B783419368}.Release|Any CPU.Build.0 = Release|Any CPU
+		{00766EFC-A78D-4D75-84D0-0FFF7BD03DA9}.CLI_DEBUG|Any CPU.ActiveCfg = Debug|Any CPU
+		{00766EFC-A78D-4D75-84D0-0FFF7BD03DA9}.CLI_DEBUG|Any CPU.Build.0 = Debug|Any CPU
 		{00766EFC-A78D-4D75-84D0-0FFF7BD03DA9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{00766EFC-A78D-4D75-84D0-0FFF7BD03DA9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{00766EFC-A78D-4D75-84D0-0FFF7BD03DA9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{00766EFC-A78D-4D75-84D0-0FFF7BD03DA9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1FCFC07F-D86E-4885-915D-47F08A9362B7}.CLI_DEBUG|Any CPU.ActiveCfg = Debug|Any CPU
+		{1FCFC07F-D86E-4885-915D-47F08A9362B7}.CLI_DEBUG|Any CPU.Build.0 = Debug|Any CPU
 		{1FCFC07F-D86E-4885-915D-47F08A9362B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{1FCFC07F-D86E-4885-915D-47F08A9362B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1FCFC07F-D86E-4885-915D-47F08A9362B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
