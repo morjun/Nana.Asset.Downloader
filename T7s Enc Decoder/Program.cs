@@ -28,7 +28,7 @@ namespace T7s_Enc_Decoder
                       try {
                         DecryptFiles.DecryptFile(filePath);
                       }
-                      catch (CryptographicException ex) {
+                      catch (System.Security.Cryptography.CryptographicException ex) {
                         Console.WriteLine("암호화 예외가 발생했습니다: " + ex.Message);
                       }
                     }
