@@ -13,20 +13,18 @@ namespace T7s_Asset_Downloader
             InitializeComponent();
         }
         private readonly GetCard _getCard = new GetCard(new MakeRequest());
-        private void Button_GetAllIndex_Click(object sender, EventArgs e)
+        private async void Button_GetAllIndex_Click(object sender, EventArgs e)
         {
-            Define.Rev = Define.UserRev = "001";
+            // Define.Rev = "753";
+            // Define.masterRev = "252";
             new JsonParse().SaveUrlIndex(
-                new MakeRequest().MakePostRequest(Define.Id, Define.GetApiName(Define.APINAME_TYPE.result)));
+                new MakeRequest().MakePostRequest(Define.Id, Define.GetApiName(Define.APINAME_TYPE.result), true));
         }
 
-        private void Button_GetConfing_Click(object sender, EventArgs e)
+        private async void Button_GetConfing_Click(object sender, EventArgs e)
         {
-            Define.Rev = Define.UserRev = Define.NOW_STAUTUS == NOW_STAUTUS.First
-                ? (Convert.ToInt32(Define.NowRev) + 296).ToString()
-                : (Convert.ToInt32(Define.NowRev) - 3).ToString();
             new JsonParse().SaveDlConfing(
-                new MakeRequest().MakePostRequest(Define.Id, Define.GetApiName(Define.APINAME_TYPE.result)));
+                new MakeRequest().MakePostRequest(Define.Id, Define.GetApiName(Define.APINAME_TYPE.result), true), true);
         }
 
         private void Button_LoadAllIndex_Click(object sender, EventArgs e)
@@ -51,9 +49,8 @@ namespace T7s_Asset_Downloader
 
         private void Button_GetToNewIndex_Click(object sender, EventArgs e)
         {
-            Define.Rev = Define.UserRev = textBox_InputRev.Text;
             new JsonParse().SaveUrlIndex(
-                new MakeRequest().MakePostRequest(Define.Id, Define.GetApiName(Define.APINAME_TYPE.result)));
+                new MakeRequest().MakePostRequest(Define.Id, Define.GetApiName(Define.APINAME_TYPE.result), true));
         }
 
         private void Advance_Load(object sender, EventArgs e)
@@ -92,6 +89,11 @@ namespace T7s_Asset_Downloader
             {
                 formatScout.Format(false);
             }
+        }
+
+        private void groupBox6_Enter(object sender, EventArgs e)
+        {
+
         }
     }
 

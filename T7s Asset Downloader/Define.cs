@@ -16,6 +16,7 @@ namespace T7s_Asset_Downloader
             ///     Login
             /// </summary>
             login,
+            login_index,
 
             /// <summary>
             ///     setup/resource/result
@@ -50,14 +51,14 @@ namespace T7s_Asset_Downloader
         public static string Id = "353b3932613b34642c346230672e36366165293e3a31312c3a64356060363030613f3764";
         //public static string encPid = "323a31363b33";
         public static string encPid = "36323335313138";
-        public static string Ver = "6.7.0";
-        public static string Rev = "310";
-        public static string Blt = "157";
-        public static string UserRev = "297";
+        public static string Ver = "11.3.1";
+        public static string Rev = "753";
+        public static string Blt = "3375";
+        public static string masterRev = "252";
         
 
         public static string DownloadPath;
-        public static string NowRev = "1";
+        public static string NowRev = "753";
         public static string LastRev;
         public static string[] DiifList;
 
@@ -174,6 +175,8 @@ namespace T7s_Asset_Downloader
                     return "login";
                 case APINAME_TYPE.result:
                     return "setup/resource/result";
+                case APINAME_TYPE.login_index:
+                    return "login/index";
                 case APINAME_TYPE.inspection:
                     return "inspection";
                 case APINAME_TYPE.first:

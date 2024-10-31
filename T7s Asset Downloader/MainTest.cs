@@ -22,8 +22,8 @@ namespace T7s_Asset_Downloader
 
         private void Button_GetAllIndex_Click(object sender, EventArgs e)
         {
-            Define.Rev = "001";
-            Define.UserRev = "001";
+            // Define.Rev = "753";
+            // Define.masterRev = "252";
             var a = new MakeRequest().RawMakePostRequest(Define.BaseUrl + Define.GetApiName(Define.APINAME_TYPE.result),
                 Define.Id, Define.GetApiName(Define.APINAME_TYPE.result));
             new JsonParse().SaveUrlIndex(a);

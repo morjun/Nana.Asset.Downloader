@@ -52,12 +52,13 @@ namespace T7s_Asset_Downloader.Response
             };
 
             _postClient.DefaultRequestHeaders.Add("Expect", "100-continue");
-            _postClient.DefaultRequestHeaders.Add("X-Unity-Version", "2018.3.12f1");
+            _postClient.DefaultRequestHeaders.Add("X-Unity-Version", "2020.3.20f1");
             _postClient.DefaultRequestHeaders.Add("UserAgent",
-                "Dalvik/2.1.0 (Linux; U; Android 5.1.1; xiaomi 8 Build/LMY49I)");
+                "UnityPlayer/2020.3.20f1 (UnityWebRequest/1.0, libcurl/7.75.0-DEV)");
             _postClient.DefaultRequestHeaders.Add("Host", "api.t7s.jp");
             _postClient.DefaultRequestHeaders.Add("Connection", "Keep-Alive");
-            _postClient.DefaultRequestHeaders.Add("Accept-Encoding", "gzip");
+            _postClient.DefaultRequestHeaders.Add("Accept-Encoding", "deflate, gzip");
+            _postClient.DefaultRequestHeaders.Add("Accept", "*/*");
         }
 
         public async Task<string> MakeSingleGetRequest(string getUrl, string savePath, string fileName)
@@ -125,13 +126,13 @@ namespace T7s_Asset_Downloader.Response
             }
         }
 
-        public async Task<int> MakeUpdatePostRequest(string id, string apiName)
+        public async Task<int> MakeLoginIndexPostRequest(string id, string apiName)
         {
             try
             {
                 var Params = new MakeParams();
-                Params.AddParam("downloadType","0");
-                Params.AddParam("userRev", Define.UserRev);
+                // Params.AddParam("downloadType","0");
+                Params.AddParam("masterRev", Define.masterRev);
                 Params.AddCommonParams();
                 Params.AddParam("pid", SaveData.Decrypt(Define.encPid));
                 Params.AddSignatureParam(id, apiName);
@@ -148,6 +149,66 @@ namespace T7s_Asset_Downloader.Response
                 if (response.IsSuccessStatusCode)
                 {
                     var jsonString = await response.Content.ReadAsStringAsync();
+                    var jsonObject = Newtonsoft.Json.Linq.JObject.Parse(jsonString);
+
+                    // 특정 키에 대응되는 값 가져오기 (예: "myKey")
+                    Define.NowRev = Define.Rev = jsonObject["rev"]?.ToString();
+                    Define.masterRev = jsonObject["masterRev"]?.ToString();
+
+                    return 0;
+                }
+
+                response.EnsureSuccessStatusCode();
+                return 1;
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.Message);
+                throw;
+            }
+        }
+
+        public async Task<int> MakeUpdatePostRequest(string id, string apiName)
+        {
+            try
+            {
+                // setup/resource/result?blt=3375&device=Android&downloadType=0&jb=0&masterRev=342&os=android&osversion=10&pid=4207123&platform=Switch&rev=841&ts=1726642668&userRev=841&ver=11.3.1
+                var Params = new MakeParams();
+                Params.AddParam("downloadType","0");
+
+                // Params.AddParam("masterRev", Define.masterRev);
+                // Params.AddParam("userRev", Define.Rev);
+                // Params.AddParam("rev", Define.Rev);
+
+                Params.AddParam("masterRev", "0");
+                Params.AddParam("userRev", "0");
+                Params.AddParam("rev", "0");
+
+                Params.AddParam("ver", Define.Ver);
+                Params.AddParam("ts", Params.GetUnixTime());
+                Params.AddParam("os", "android");
+                Params.AddParam("blt", Define.Blt);
+                Params.AddParam("device", "Android");
+                Params.AddParam("platform", "Switch");
+                Params.AddParam("osversion", "10");
+                Params.AddParam("jb", "0");
+                // Params.AddCommonParams();
+                Params.AddParam("pid", SaveData.Decrypt(Define.encPid));
+                Params.AddSignatureParam(id, apiName);
+                var httpContent = new StringContent(Params.GetParam())
+                {
+                    Headers =
+                    {
+                        ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded")
+                    }
+                };
+
+                var response = await _postClient.PostAsync(apiName
+                    , httpContent);
+                if (response.IsSuccessStatusCode)
+                {
+                    var jsonString = await response.Content.ReadAsStringAsync();
+
                     using (var streamWriter = new StreamWriter(Define.GetUpdatePath()))
                     {
                         streamWriter.Write(jsonString);
@@ -172,8 +233,27 @@ namespace T7s_Asset_Downloader.Response
             try
             {
                 var makeParams = new MakeParams();
-                makeParams.AddParam("userRev", Define.UserRev);
+                if (update)
+                {
+                    makeParams.AddParam("downloadType","0");
+
+                    makeParams.AddParam("masterRev", "0");
+                    makeParams.AddParam("userRev", "0");
+                    makeParams.AddParam("rev", "0");
+
+                    makeParams.AddParam("ver", Define.Ver);
+                    makeParams.AddParam("ts", makeParams.GetUnixTime());
+                    makeParams.AddParam("os", "android");
+                    makeParams.AddParam("blt", Define.Blt);
+                    makeParams.AddParam("device", "Android");
+                    makeParams.AddParam("platform", "Switch");
+                    makeParams.AddParam("osversion", "10");
+                    makeParams.AddParam("jb", "0");
+                }
+                else {
+                makeParams.AddParam("masterRev", Define.masterRev);
                 makeParams.AddCommonParams();
+                }
                 makeParams.AddParam("pid", SaveData.Decrypt(Define.encPid));
                 makeParams.AddSignatureParam(id, apiName);
                 var httpContent = new StringContent(makeParams.GetParam())
@@ -203,7 +283,7 @@ namespace T7s_Asset_Downloader.Response
                 else
                 {
                     response.EnsureSuccessStatusCode();
-                    MessageBox.Show(@"请求超时");
+                    MessageBox.Show(@"요청 시간 초과");
                 }
 
                 return "complete";
@@ -275,9 +355,9 @@ namespace T7s_Asset_Downloader.Response
                 })
                 {
                     client.DefaultRequestHeaders.Add("Expect", "100-continue");
-                    client.DefaultRequestHeaders.Add("X-Unity-Version", "2018.2.6f1");
+                    client.DefaultRequestHeaders.Add("X-Unity-Version", "2020.3.20f1");
                     client.DefaultRequestHeaders.Add("UserAgent",
-                        "Dalvik/2.1.0 (Linux; U; Android 5.1.1; xiaomi 8 Build/LMY49I)");
+                    "UnityPlayer/2020.3.20f1 (UnityWebRequest/1.0, libcurl/7.75.0-DEV)");
                     client.DefaultRequestHeaders.Add("Host", "api.t7s.jp");
                     client.DefaultRequestHeaders.Add("Connection", "Keep-Alive");
                     client.DefaultRequestHeaders.Add("Accept-Encoding", "gzip");
@@ -344,9 +424,9 @@ namespace T7s_Asset_Downloader.Response
             request.Method = "POST";
 
             request.ContentType = "application/x-www-form-urlencoded";
-            request.Headers.Add("X-Unity-Version", "2018.2.6f1");
+            request.Headers.Add("X-Unity-Version", "2020.3.20f1");
             request.ContentLength = PrarmsBytes.Length;
-            request.UserAgent = "Dalvik/2.1.0 (Linux; U; Android 5.1.1; xiaomi 8 Build/LMY49I)";
+            request.UserAgent = "UnityPlayer/2020.3.20f1 (UnityWebRequest/1.0, libcurl/7.75.0-DEV)";
             request.Host = "api.t7s.jp";
             request.Headers.Add("Accept-Encoding", "gzip");
 

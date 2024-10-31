@@ -40,7 +40,7 @@ namespace T7s_Asset_Downloader
         {
             _setNewVersion.Start();
             _request.HttpClientTest(_downloadProcessMessageHandler);
-            
+
             if (File.Exists(Define.GetIndexPath()))
             {
                 Define.JsonParse.LoadUrlIndex(Define.GetIndexPath());
@@ -81,7 +81,7 @@ namespace T7s_Asset_Downloader
         private void ReloadNoticeLabels()
         {
             SetNoticesText(
-                Define.NOW_STAUTUS != NOW_STAUTUS.First ? "当前版本 : " + "r" + Define.NowRev : "当前版本 : " + ">> 请获取最新版本",
+                Define.NOW_STAUTUS != NOW_STAUTUS.First ? "현재 버전: " + "r" + Define.NowRev : "현재 버전 : " + ">> 최신 버전을 받으십시오.",
                 label_NowRev);
         }
 
@@ -98,72 +98,75 @@ namespace T7s_Asset_Downloader
         {
             try
             {
-                SetNoticesText(">> ... 正在查询游戏最新版本信息", downloadNotice);
-                            await _setNewVersion;
+                SetNoticesText(">> ... 게임의 최신 버전 정보를 조회하는 중", downloadNotice);
+                await _setNewVersion;
 
-            _request._ini_PostClient();
-            if (Define.NOW_STAUTUS == NOW_STAUTUS.First)
-                if (MessageBox.Show(@" 需要获取一次完整索引文件，可能下载较长时间，是否现在下载 "
-                        , @"Notice"
-                        , MessageBoxButtons.OKCancel) != DialogResult.OK)
-                {
-                    SetNoticesText(">> 需要获取一次完整索引文件，请点击获取最新版本", downloadNotice);
-                    return;
-                }
-
-            SetNoticesText(">> ... 正在自动检测数据最新版本 , 请稍等 ", downloadNotice);
-
-            var updateStatus = await Task.Run(async () =>
-            {
-                Define.Rev = Define.UserRev = Define.NowRev;
-                if (await _request.MakeUpdatePostRequest(Define.Id, Define.GetApiName(Define.APINAME_TYPE.result)) == 0)
-                    return await Define.JsonParse.TestUpdateStatusAsync();
-                return UPDATE_STATUS.Error;
-            });
-
-            switch (updateStatus)
-            {
-                case UPDATE_STATUS.Error:
-                    SetNoticesText(">> Error : 游戏服务器可能在维护中，请稍后重试", downloadNotice);
-                    return;
-                case UPDATE_STATUS.NoNecessary:
-                    SetNoticesText(">> 已经是最新版本 ", downloadNotice);
-                    return;
-                case UPDATE_STATUS.Ok:
-                    if (MessageBox.Show(@" 检测到最新版本 , 请问是否要现在更新 "
+                _request._ini_PostClient();
+                if (Define.NOW_STAUTUS == NOW_STAUTUS.First)
+                    if (MessageBox.Show(@"전체 인덱스 파일을 한 번 다운로드 해야 합니다. 다운로드 시간이 오래 걸릴 수 있습니다. 지금 다운로드하시겠습니까?"
                             , @"Notice"
-                            , MessageBoxButtons.OKCancel) == DialogResult.OK)
+                            , MessageBoxButtons.OKCancel) != DialogResult.OK)
                     {
-                        Define.JsonParse.UpdateUrlIndex(Define.JsonParse, true);
-                        await Task.Run(() =>
+                        SetNoticesText(">>전체 인덱스 파일을 한 번 얻으려면, 최신 버전 얻기를 클릭하십시오.", downloadNotice);
+                        return;
+                    }
+
+                SetNoticesText(">> ...최신 버전의 데이터를 자동으로 검사하고 있습니다. 기다려 주십시오", downloadNotice);
+
+                var updateStatus = await Task.Run(async () =>
+                {
+                    if (await _request.MakeLoginIndexPostRequest(Define.Id, Define.GetApiName(Define.APINAME_TYPE.login_index)) == 0)
+                        SetNoticesText(">> ...로그인 성공", downloadNotice);
+                        // return UPDATE_STATUS.NoNecessary;
+                    if (await _request.MakeUpdatePostRequest(Define.Id, Define.GetApiName(Define.APINAME_TYPE.result)) == 0)
+                        SetNoticesText(">> ...리소스 업데이트 성공", downloadNotice);
+                        return await Define.JsonParse.TestUpdateStatusAsync();
+                    return UPDATE_STATUS.Error;
+                });
+
+                switch (updateStatus)
+                {
+                    case UPDATE_STATUS.Error:
+                        SetNoticesText(">> Error : 게임 서버가 점검 중일 수 있습니다. 잠시 후에 다시 시도하십시오.", downloadNotice);
+                        return;
+                    case UPDATE_STATUS.NoNecessary:
+                        SetNoticesText(">> 이미 최신 버전입니다 ", downloadNotice);
+                        return;
+                    case UPDATE_STATUS.Ok:
+                        if (MessageBox.Show(@" 최신 버전이 감지되었습니다. 지금 업데이트하시겠습니까?"
+                                , @"Notice"
+                                , MessageBoxButtons.OKCancel) == DialogResult.OK)
                         {
-                            while (Define.IsGetNewComplete == false)
+                            Define.JsonParse.UpdateUrlIndex(Define.JsonParse, true);
+                            await Task.Run(() =>
                             {
-                            }
+                                while (Define.IsGetNewComplete == false)
+                                {
+                                }
 
-                            Define.NOW_STAUTUS = NOW_STAUTUS.Normal;
-                            SetNoticesText(">> 就绪 ...", downloadNotice);
-                            ReloadNoticeLabels();
-                            SetButtomEnabled(true, button_GetNew);
-                            SetButtomEnabled(true, button_ReloadAdvance);
-                            _ini_listResult();
-                        });
-                    }
-                    else
-                    {
-                        SetNoticesText(">> 就绪 , 有新版本可以更新 ", downloadNotice);
-                    }
+                                Define.NOW_STAUTUS = NOW_STAUTUS.Normal;
+                                SetNoticesText(">> 준비...", downloadNotice);
+                                ReloadNoticeLabels();
+                                SetButtomEnabled(true, button_GetNew);
+                                SetButtomEnabled(true, button_ReloadAdvance);
+                                _ini_listResult();
+                            });
+                        }
+                        else
+                        {
+                            SetNoticesText(">>준비되었습니다. 업데이트할 수 있는 새로운 버전이 있습니다 ", downloadNotice);
+                        }
 
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
             }
             catch (Exception e)
             {
-                MessageBox.Show($@"请检测网络 ： {e.Message}");
+                MessageBox.Show($@"네트워크를 검사하십시오: {e.Message}");
             }
-            
+
 
         }
 
@@ -193,7 +196,7 @@ namespace T7s_Asset_Downloader
                     totalCount = listBoxResult.SelectedItems.Count;
                     if (totalCount < 1)
                     {
-                        MessageBox.Show(@"未选择要下载的文件，请点击选择某项或多项文件，再开始下载。", "Notice");
+                        MessageBox.Show(@"다운로드할 파일을 선택하지 않았습니다. 파일을 하나 이상 선택한 후 다운로드를 시작하려면 클릭하십시오.", "Notice");
                         button_DownloadCancel.Visible = false;
                         return;
                     }
@@ -296,7 +299,7 @@ namespace T7s_Asset_Downloader
         /// <param name="update"></param>
         private async Task<UPDATE_STATUS> StartPost(bool index = false, bool update = false)
         {
-            SetNoticesText("正在获取新版本数据 ...请稍等...", downloadNotice);
+            SetNoticesText("새 버전의 데이터를 가져오는 중... 잠시만...", downloadNotice);
             var jsonParse = new JsonParse();
             _postProcessMessageHandler.HttpSendProgress += (senders, es) =>
             {
@@ -305,7 +308,7 @@ namespace T7s_Asset_Downloader
             };
             if (!index)
                 return await jsonParse.SaveDlConfing(
-                    _request.MakePostRequest(Define.Id, Define.GetApiName(Define.APINAME_TYPE.result)), true);
+                    _request.MakePostRequest(Define.Id, Define.GetApiName(Define.APINAME_TYPE.result), true), true);
 
             if (update)
             {
@@ -315,7 +318,7 @@ namespace T7s_Asset_Downloader
             else
             {
                 jsonParse.SaveUrlIndex(
-                    _request.MakePostRequest(Define.Id, Define.GetApiName(Define.APINAME_TYPE.result)), true);
+                    _request.MakePostRequest(Define.Id, Define.GetApiName(Define.APINAME_TYPE.result), true), true);
             }
 
             return UPDATE_STATUS.Ok;
@@ -424,14 +427,13 @@ namespace T7s_Asset_Downloader
             {
                 await Task.Run(async () =>
                 {
-                    Define.Rev = Define.UserRev = (Convert.ToInt32(Define.NowRev) + 300).ToString();
                     updateStatus = await StartPost();
                 });
 
                 switch (updateStatus)
                 {
                     case UPDATE_STATUS.Error:
-                        SetNoticesText(">> Error : 游戏服务器可能在维护中，请稍后重试", downloadNotice);
+                        SetNoticesText(">> Error: 게임 서버가 점검 중일 수 있습니다. 잠시 후에 다시 시도하십시오.", downloadNotice);
                         SetButtomEnabled(true, button_GetNew);
                         SetButtomEnabled(true, button_ReloadAdvance);
                         return;
@@ -445,7 +447,8 @@ namespace T7s_Asset_Downloader
 
                 await Task.Run(async () =>
                 {
-                    Define.Rev = Define.UserRev = "001";
+                    // Define.masterRev = "252";
+                    // Define.Rev = "753";
                     updateStatus = await StartPost(true);
                 });
             }
@@ -454,19 +457,18 @@ namespace T7s_Asset_Downloader
                 await Task.Run(async () =>
                 {
                     Define.LastRev = Define.NowRev;
-                    Define.Rev = Define.UserRev = (Convert.ToInt32(Define.NowRev) - 3).ToString();
                     updateStatus = await StartPost();
                 });
 
                 switch (updateStatus)
                 {
                     case UPDATE_STATUS.Error:
-                        SetNoticesText(">> Error : 游戏服务器可能在维护中，请稍后重试", downloadNotice);
+                        SetNoticesText(">> Error: 게임 서버가 점검 중일 수 있습니다. 잠시 후에 다시 시도하십시오.", downloadNotice);
                         SetButtomEnabled(true, button_GetNew);
                         SetButtomEnabled(true, button_ReloadAdvance);
                         return;
                     case UPDATE_STATUS.NoNecessary:
-                        SetNoticesText("已经是最新版本", downloadNotice);
+                        SetNoticesText("이미 최신 버전입니다", downloadNotice);
                         SetButtomEnabled(true, button_GetNew);
                         SetButtomEnabled(true, button_ReloadAdvance);
                         return;
@@ -478,7 +480,6 @@ namespace T7s_Asset_Downloader
 
                 await Task.Run(async () =>
                 {
-                    Define.Rev = Define.UserRev = Define.LastRev;
                     updateStatus = await StartPost(true, true);
                 });
             }
@@ -490,7 +491,7 @@ namespace T7s_Asset_Downloader
                 }
 
                 Define.NOW_STAUTUS = NOW_STAUTUS.Normal;
-                SetNoticesText(">> 就绪 ...", downloadNotice);
+                SetNoticesText(">> 준비...", downloadNotice);
                 ReloadNoticeLabels();
                 SetButtomEnabled(true, button_GetNew);
                 SetButtomEnabled(true, button_ReloadAdvance);
@@ -518,8 +519,8 @@ namespace T7s_Asset_Downloader
 
             var ofd = new OpenFileDialog
             {
-                Title = "选择要打开的文件",
-                Filter = "加密索引文件|Index.json",
+                Title = "파일 선택",
+                Filter = "인덱스 파일 암호화|Index.json",
                 RestoreDirectory = true
             };
             if (ofd.ShowDialog() == DialogResult.OK)
@@ -619,6 +620,11 @@ namespace T7s_Asset_Downloader
             {
                 AddListResult(item);
             }
+        }
+
+        private void label_NowRev_Click(object sender, EventArgs e)
+        {
+
         }
 
         #endregion

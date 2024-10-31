@@ -34,7 +34,7 @@ namespace T7s_Asset_Downloader.Asset
 
         private void OnGetComplete()
         {
-            MessageBox.Show(@"获取完成", @"Notice", MessageBoxButtons.OK,
+            MessageBox.Show(@"가져오기 완료", @"Notice", MessageBoxButtons.OK,
                 MessageBoxIcon.Information, MessageBoxDefaultButton.Button1);
         }
 
@@ -95,27 +95,22 @@ namespace T7s_Asset_Downloader.Asset
                 Directory.CreateDirectory(Define.LocalPath + @"\Asset\Index\Temp");
             if (await ParseResultJsonAsync(Define.GetUpdatePath()) == 1) return;
 
-            var baseFileUrl = GetModify()[1].ToString();
-            var tempFileUrl = baseFileUrl.Split('/');
+            // var tempFileUrl = GetModify();
 
             var downloadPath = new StringBuilder();
-            for (var j = 0; j < 2; j++)
-            {
-                downloadPath.Append(tempFileUrl[j]);
-                downloadPath.Append("/");
-            }
+            downloadPath.Append(ResultJsonObject["updateResource"]["downloadConfig"]["baseUrl"].ToString());
+            downloadPath.Append(ResultJsonObject["updateResource"]["downloadConfig"]["resource"].ToString());
 
             jsonParse.DownloadConfings.Add(new DownloadConfing
             {
                 Revision = ResultJsonObject["updateResource"]["revision"].ToString(),
-                DownloadDomain = ResultJsonObject["updateResource"]["downloadConfig"]["domain"].ToString(),
+                DownloadDomain = ResultJsonObject["updateResource"]["downloadConfig"]["baseUrl"].ToString(),
                 DownloadPath = downloadPath.ToString(),
-                NewDownloadSize = ResultJsonObject["updateResource"]["downloadSize"].ToString(),
-                OneByOneDownloadPath = ResultJsonObject["updateResource"]["downloadConfig"]["oneByOneDownloadPath"]
-                    .ToString(),
-                SubDomain = ResultJsonObject["updateResource"]["downloadConfig"]["subDomain"].ToString(),
+                NewDownloadSize = ResultJsonObject["updateResource"]["resourceSize"].ToString(),
+                OneByOneDownloadPath = downloadPath.ToString(),
+                SubDomain = ResultJsonObject["updateResource"]["downloadConfig"]["resource"].ToString(),
                 ImageRev = ResultJsonObject["updateResource"]["imageRev"].ToString(),
-                ImagePath = ResultJsonObject["updateResource"]["imagePath"].ToString()
+                ImagePath = ResultJsonObject["updateResource"]["downloadConfig"]["imagePath"].ToString()
             });
             var downloadConfing = JsonConvert.SerializeObject(jsonParse.DownloadConfings);
             using (var fileStream = File.OpenWrite(Define.LocalPath + @"\Asset\Index\Temp" + @"\Confing.json"))
@@ -135,8 +130,7 @@ namespace T7s_Asset_Downloader.Asset
             File.Copy(Define.LocalPath + @"\Asset\Index\" + "r" + Define.NowRev + @"\Confing.json",
                 Define.GetConfingPath(), true);
 
-            ParseModify(false, true, jsonParse);
-            ParseModify(true, true, jsonParse);
+            ParseModify(downloadPath.ToString(), false, true, jsonParse);
 
             if (first == false)
                 foreach (var deleteFiles in GetModify(false, true))
@@ -179,27 +173,22 @@ namespace T7s_Asset_Downloader.Asset
 
             if (Convert.ToInt16(Define.LastRev) >= Convert.ToInt16(testRev)) return UPDATE_STATUS.NoNecessary;
 
-            var baseFileUrl = GetModify()[1].ToString();
-            var tempFileUrl = baseFileUrl.Split('/');
+            // var tempFileUrl = GetModify();
 
             var downloadPath = new StringBuilder();
-            for (var j = 0; j < 2; j++)
-            {
-                downloadPath.Append(tempFileUrl[j]);
-                downloadPath.Append("/");
-            }
+            downloadPath.Append(ResultJsonObject["updateResource"]["downloadConfig"]["baseUrl"].ToString());
+            downloadPath.Append(ResultJsonObject["updateResource"]["downloadConfig"]["resource"].ToString());
 
             DownloadConfings.Add(new DownloadConfing
             {
                 Revision = ResultJsonObject["updateResource"]["revision"].ToString(),
-                DownloadDomain = ResultJsonObject["updateResource"]["downloadConfig"]["domain"].ToString(),
+                DownloadDomain = ResultJsonObject["updateResource"]["downloadConfig"]["baseUrl"].ToString(),
                 DownloadPath = downloadPath.ToString(),
-                NewDownloadSize = ResultJsonObject["updateResource"]["downloadSize"].ToString(),
-                OneByOneDownloadPath = ResultJsonObject["updateResource"]["downloadConfig"]["oneByOneDownloadPath"]
-                    .ToString(),
-                SubDomain = ResultJsonObject["updateResource"]["downloadConfig"]["subDomain"].ToString(),
+                NewDownloadSize = ResultJsonObject["updateResource"]["resourceSize"].ToString(),
+                OneByOneDownloadPath = downloadPath.ToString(),
+                SubDomain = ResultJsonObject["updateResource"]["downloadConfig"]["resource"].ToString(),
                 ImageRev = ResultJsonObject["updateResource"]["imageRev"].ToString(),
-                ImagePath = ResultJsonObject["updateResource"]["imagePath"].ToString()
+                ImagePath = ResultJsonObject["updateResource"]["downloadConfig"]["imagePath"].ToString()
             });
             var downloadConfing = JsonConvert.SerializeObject(DownloadConfings);
 
@@ -236,8 +225,11 @@ namespace T7s_Asset_Downloader.Asset
 
             GetError();
 
-            ParseModify();
-            ParseModify(true);
+            var downloadPath = new StringBuilder();
+            downloadPath.Append(ResultJsonObject["updateResource"]["downloadConfig"]["baseUrl"].ToString());
+            downloadPath.Append(ResultJsonObject["updateResource"]["downloadConfig"]["resource"].ToString());
+
+            ParseModify(downloadPath.ToString(), false, false);
 
             var urlIndex =
                 JsonConvert.SerializeObject(FileUrls.OrderBy(e => e.Name, StringComparer.Ordinal).Distinct());
@@ -315,7 +307,7 @@ namespace T7s_Asset_Downloader.Asset
         public string GetRevOrError()
         {
             if (ResultJsonObject.Property("error") != null) return $"error:{ResultJsonObject["error"]["errorCode"]}";
-            var rev = ResultJsonObject["rev"];
+            var rev = ResultJsonObject["updateResource"]["revision"];
             return rev != null ? rev.ToString() : "error";
         }
 
@@ -326,28 +318,24 @@ namespace T7s_Asset_Downloader.Asset
         }
 
 
-        public void ParseModify(bool oneByOneModify = false, bool update = false,
+        public void ParseModify(string basefileUrl, bool oneByOneModify = false, bool update = false,
             JsonParse jsonParse = null)
         {
             var urlList = GetModify(oneByOneModify);
 
             foreach (var url in urlList)
             {
-                var baseFileUrl = url.ToString();
-                var tempFileUrl = baseFileUrl.Split('/');
+                var zipfileUrl = url.ToString(); 
 
                 var fileUrl = new StringBuilder();
-                for (var j = 2; j < tempFileUrl.Length; j++)
-                {
-                    fileUrl.Append(tempFileUrl[j]);
-                    if (j != tempFileUrl.Length - 1) fileUrl.Append("/");
-                }
+                fileUrl.Append(basefileUrl);
+                fileUrl.Append(zipfileUrl);
 
                 if (update)
-                    AddFileUrl(jsonParse, tempFileUrl.Last(), fileUrl.ToString(),
+                    AddFileUrl(jsonParse, zipfileUrl, fileUrl.ToString(),
                         !oneByOneModify ? URL_TYPE.Modify : URL_TYPE.oneByOneModify);
                 else
-                    AddFileUrl(tempFileUrl.Last(), fileUrl.ToString(),
+                    AddFileUrl(zipfileUrl, fileUrl.ToString(),
                         !oneByOneModify ? URL_TYPE.Modify : URL_TYPE.oneByOneModify);
             }
         }
@@ -357,10 +345,17 @@ namespace T7s_Asset_Downloader.Asset
         /// </summary>
         public JArray GetModify(bool oneByOneModify = false, bool delete = false)
         {
-            if (delete) return (JArray) ResultJsonObject["updateResource"]["deleteList"];
-            if (!oneByOneModify)
-                return (JArray) ResultJsonObject["updateResource"]["modifyList"];
-            return (JArray) ResultJsonObject["updateResource"]["oneByOneModifyList"];
+            if (delete) return (JArray) ResultJsonObject["updateResource"]["deleteList"]; // 무조건 false
+            try
+            {
+                if (!oneByOneModify)
+                    return (JArray)ResultJsonObject["updateResource"]["zips"];
+                return (JArray)ResultJsonObject["updateResource"]["zips"];
+            }
+            catch (Exception)
+            {
+                return new JArray();
+            }
         }
 
         /// <summary>
@@ -451,8 +446,11 @@ namespace T7s_Asset_Downloader.Asset
 
             await ParseResultJsonAsync(data);
 
-            ParseModify();
-            ParseModify(true);
+            var downloadPath = new StringBuilder();
+            downloadPath.Append(ResultJsonObject["updateResource"]["downloadConfig"]["baseUrl"].ToString());
+            downloadPath.Append(ResultJsonObject["updateResource"]["downloadConfig"]["resource"].ToString());
+
+            ParseModify(downloadPath.ToString(), false, false);
 
             var urlIndex =
                 JsonConvert.SerializeObject(FileUrls.OrderBy(e => e.Name, StringComparer.Ordinal));
@@ -511,8 +509,12 @@ namespace T7s_Asset_Downloader.Asset
             if (!Directory.Exists(Define.LocalPath + @"\Asset\Index"))
                 Directory.CreateDirectory(Define.LocalPath + @"\Asset\Index");
 
-            ParseModify(path);
-            ParseModify(path, true);
+            var downloadPath = new StringBuilder();
+            downloadPath.Append(ResultJsonObject["updateResource"]["downloadConfig"]["baseUrl"].ToString());
+            downloadPath.Append(ResultJsonObject["updateResource"]["downloadConfig"]["resource"].ToString());
+
+            ParseModify(downloadPath.ToString(), false, false);
+
             var urlIndex =
                 JsonConvert.SerializeObject(FileUrls.OrderBy(e => e.Name, StringComparer.Ordinal));
             using (var streamWriter = new StreamWriter(Define.LocalPath + @"\Asset\Index\" + "Index.json"))

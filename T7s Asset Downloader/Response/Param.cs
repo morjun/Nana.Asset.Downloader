@@ -66,12 +66,12 @@ namespace T7s_Asset_Downloader.Response
                 new Param
                 {
                     Key = "platform",
-                    Value = "xiaomi 8"
+                    Value = "Switch"
                 },
                 new Param
                 {
                     Key = "osversion",
-                    Value = "5.1.1"
+                    Value = "10"
                 },
                 new Param
                 {

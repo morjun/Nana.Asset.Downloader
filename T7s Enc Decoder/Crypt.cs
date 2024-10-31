@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 using System.Windows.Forms;
 #endif
 using K4os.Compression.LZ4;
+using K4os.Compression.LZ4.Streams;
 using T7s_Enc_Decoder;
 
 namespace T7s_Enc_Decoder

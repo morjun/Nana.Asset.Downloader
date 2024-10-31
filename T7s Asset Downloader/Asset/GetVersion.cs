@@ -7,13 +7,13 @@ namespace T7s_Asset_Downloader.Asset
 {
     internal static class GetVersion
     {
-        private const string Url = "http://1app.pw/app/history/8";
+        private const string Url = "https://play.google.com/store/apps/details?id=jp.ne.donuts.t7s&hl=ja";
 
         private static HtmlDocument _htmlDocument;
         private static string SelectHtmlToString(string selectString, string param = " ", bool attributes = false)
         {
 
-            var NewVersionDivSelectString = "//body/div[2]/div[last()]/div[1]";
+            var NewVersionDivSelectString = "div.sMUprd:nth-child(1) > div:nth-child(2)";
 
             if (attributes)
                 return _htmlDocument.DocumentNode.SelectSingleNode(
@@ -36,17 +36,17 @@ namespace T7s_Asset_Downloader.Asset
             {
                 var web = new HtmlWeb();
                 _htmlDocument = web.Load(Url);
-                var tempVersion = SelectHtmlToString("/div[1]/div[1]/a/span");
+                var tempVersion = SelectHtmlToString("");
                 return new GameVersion
                 {
                     Version = tempVersion,
-                    VersionCode = SelectHtmlToString("/div[1]/div[1]/a", tempVersion).Substring(1),
-                    DownloadPath = Url + SelectHtmlToString("/div[2]/div/a", "href", true)
+                    VersionCode = SelectHtmlToString("", tempVersion).Substring(1),
+                    DownloadPath = Url + SelectHtmlToString("", "href", true)
                 };
             }
             catch (Exception e)
             {
-                MessageBox.Show($@"检测游戏版本失败! : {e.Message}");
+                MessageBox.Show($@"게임 버전 검사 실패! : {e.Message}");
                 return new GameVersion
                 {
                     Version = Define.Ver,
