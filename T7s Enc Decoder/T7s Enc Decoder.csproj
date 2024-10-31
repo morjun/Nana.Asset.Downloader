@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <Configurations>Debug;Release;CLI_DEBUG</Configurations>
+    <Configurations>Debug;Release;CLI_DEBUG;CLI_Release</Configurations>
     <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' != 'CLI_DEBUG'">
@@ -11,6 +11,13 @@
     <TargetFramework>net472</TargetFramework>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'CLI_DEBUG'">
+    <OutputType>Exe</OutputType>
+    <UseWindowsForms>false</UseWindowsForms>
+    <ImportWindowsDesktopTargets>false</ImportWindowsDesktopTargets>
+    <DefineConstants>CLI</DefineConstants>
+    <TargetFramework>net6.0</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='CLI_Release'">
     <OutputType>Exe</OutputType>
     <UseWindowsForms>false</UseWindowsForms>
     <ImportWindowsDesktopTargets>false</ImportWindowsDesktopTargets>
