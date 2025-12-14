@@ -66,8 +66,9 @@ namespace T7s_Enc_Decoder
                     array4 = cryptoTransform.TransformFinalBlock(array3, 0, array3.Length);
                 }
             }
-            var array5 = new byte[array4.Length];
-            LZ4Codec.Decode(array4, 4, array4.Length - 4, array5, 0, BitConverter.ToInt32(array4, 0));
+            var originalSize = BitConverter.ToInt32(array4, 0);
+            var array5 = new byte[originalSize];
+            LZ4Codec.Decode(array4, 4, array4.Length - 4, array5, 0, originalSize);
             return (!lz4) ? array4 : array5;
         }
 
@@ -80,14 +81,16 @@ namespace T7s_Enc_Decoder
             byte[] array = ConvertByte(data);
             if (lz4)
             {
-                var array2 = new byte[array.Length];
-                LZ4Codec.Encode(array, 0, array.Length, array2, 0, array2.Length);
-                if (array2.Length > 0)
+                var maxOutputSize = LZ4Codec.MaximumOutputSize(array.Length);
+                var array2 = new byte[maxOutputSize];
+                var encLen = LZ4Codec.Encode(array, 0, array.Length, array2, 0, maxOutputSize);
+
+                if (encLen > 0)
                 {
                     int value = array.Length;
-                    array = new byte[array2.Length + 4];
+                    array = new byte[encLen + 4];
                     Buffer.BlockCopy(BitConverter.GetBytes(value), 0, array, 0, 4);
-                    Buffer.BlockCopy(array2, 0, array, 4, array2.Length);
+                    Buffer.BlockCopy(array2, 0, array, 4, encLen);
                 }
 #if !CLI
                 else
